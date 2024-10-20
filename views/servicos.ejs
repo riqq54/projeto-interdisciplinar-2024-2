@@ -1,0 +1,64 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar', {user, active: "servicos"}) %>
+
+
+<div class="container col-md-5 my-5">
+  <div class="card">
+    <div class="card-body">
+
+      <form action="/novoServico" method="POST" autocomplete="off">
+      <div class="form-group mb-3">
+        <label class="form-label" for="descricao">Serviço</label>
+        <input type="text" class="form-control" id="descricao" name="descricao" placeholder="Ex: Corte de Cabelo Masculino" maxlength="60" required>
+      </div>
+      <div class="form-group mb-4">
+        <label class="form-label" for="preco">Preço</label>
+        <input type="text" class="form-control dinheiro" id="preco" name="preco" placeholder="Ex: R$ 25,00 " required>
+      </div>
+      <div class="form-group">
+        <button type="submit" class="btn btn-dark w-100">Inserir Serviço</button>
+      </div>
+      </form> 
+
+    </div>
+  </div>
+</div>
+
+  <% if(servicos.length > 0) {%>
+
+    <div class="container col-md-6">
+
+      <table class="table table-bordered rounded">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Serviço</th>
+            <th>Preço</th>
+          </tr>
+        </thead>
+        <tbody>
+  
+          <%servicos.forEach(servico => {%>
+            <tr class="align-middle">
+              <td><%=servico.id%></td>
+              <td><%=servico.descricao%></td>
+              <td class="d-flex justify-content-between"> <span class="align-self-center">R$ <%=servico.preco%></span> 
+              
+                <form action="/removerServico/<%= servico.id %>" method="POST">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-outline-danger"><i class="fa-solid fa-trash-can"></i></button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          <%});%>
+  
+        </tbody>   
+      </table>
+
+    </div>
+
+  <%}%>
+</div>
+    
+<%- include('partials/footer') %>
