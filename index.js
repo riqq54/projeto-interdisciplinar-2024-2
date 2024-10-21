@@ -42,8 +42,14 @@ const db = new pg.Client({
 
 db.connect();
 
+//Funções de consulta
 async function getServicos() {
     const result = await db.query("SELECT * FROM servicos");
+    return result.rows;
+}
+
+async function getUsuarios(){
+    const result = await db.query("SELECT * FROM usuarios");
     return result.rows;
 }
 
@@ -51,10 +57,13 @@ async function getServicos() {
 // ENDPOINTS
 //
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
 
     if(req.isAuthenticated()){
-        res.render("home.ejs", {user: req.user});
+
+        const servicos = await getServicos();
+
+        res.render("home.ejs", {user: req.user, servicos});
     } else {
         res.redirect("/login")
     }
@@ -73,15 +82,16 @@ app.get("/servicos", async (req,res)=>{
     }
 })
 
-app.get("/acessos", (req,res)=>{
+app.get("/acessos", async (req,res)=>{
     if(req.isAuthenticated()){
 
-        res.render("servicos.ejs", {user: req.user});
+        const usuarios = await getUsuarios();
+
+        res.render("acessos.ejs", {user: req.user, usuarios});
     } else {
         res.redirect("/login")
     }
 })
-
 
 app.get("/login", (req, res) => {
     res.render("login.ejs");
@@ -121,37 +131,56 @@ app.post("/removerServico/:id", async (req, res) =>{
     }
 })
 
-// app.post("/register", async (req,res) => {
-//     const email = req.body.username;
-//     const password = req.body.password;
+app.post("/novoUsuario", async (req, res) =>{
+    const novoLogin = req.body.novoLogin;
+    const novaSenha = req.body.novaSenha;
 
-//     try {
-//         const checkResult = await db.query ("SELECT * FROM usuarios WHERE username = $1", [
-//             email,
-//         ]);
+    try {
+
+        const checkResult = await db.query("SELECT * FROM usuarios WHERE username = $1", [novoLogin]);
+        console.log(checkResult);
         
-//         if (checkResult.rows.length > 0) {
-//             res.send("Usuário já existe. Tente fazer o login.")
-//         }else{
-//             bcrypt.hash(password, saltRounds, async(err, hash)=>{
-//                 if(err){
-//                     console.error("Erro ao realizar Hash da senha: ", err)
-//                 } else {
-//                     // console.log("Senha após Hash:", hash);
-//                     await db.query(
-//                         "INSERT INTO usuarios (username, password) VALUES ($1, $2)",
-//                         [email, hash]
-//                     );
 
-//                     res.render("login.ejs");
-//                 }
-//             })
-//         }
+        if (checkResult.rowCount > 0) {
 
-//     } catch (err) {
-//         console.log(err);
-//     }
-// });
+            res.redirect("/acessos");
+
+        } else {
+            bcrypt.hash(novaSenha, saltRounds, async(err, hash)=>{
+                if(err){
+                    console.error("Erro ao realizar Hash da senha: ", err)
+                } else {
+                    // console.log("Senha após Hash:", hash);
+                    await db.query(
+                        "INSERT INTO usuarios (username, password) VALUES ($1, $2)",
+                        [novoLogin, hash]
+                    );
+                    res.redirect("/acessos");
+                    // res.send("Usuário criado com sucesso!");
+                }
+            })
+        }
+        
+    } catch (error) {
+        
+    }
+
+})
+
+app.post("/removerUsuario/:id", async (req, res) =>{
+
+    // console.log(req.params.id)
+    const idUsuario = req.params.id;
+
+    try {
+        await db.query("DELETE FROM usuarios WHERE id = $1", [idUsuario])
+        res.redirect("/acessos")
+        
+    } catch (err) {
+        console.log(err);
+        res.redirect("/acessos")
+    }
+})
 
 passport.use(new Strategy(async function verify(username, password, cb){
 
@@ -189,6 +218,7 @@ passport.use(new Strategy(async function verify(username, password, cb){
 passport.serializeUser((user, cb) =>{
     cb(null, user);
 })
+
 passport.deserializeUser((user, cb) =>{
     cb(null, user);
 })

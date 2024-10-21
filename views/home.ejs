@@ -1,6 +1,72 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar', {user, active: "home"}) %>
 
-    <h1>Parabéns você está logado!</h1>
+<div class="container col-md-10 my-5">
+
+    <div class="row row-gap-3">
+        <div class="col-12 col-sm-6 ">
+
+            <div class="card">
+                <div class="card-body">
+        
+                    <form action="/inserirServico" method="POST" autocomplete="off">
+                        <div class="form-group mb-4">
+                            <select class="form-select" name="servico" id="select_servico">
+                                <option selected>Selecione o Serviço</option>
+        
+                            <% if (locals.servicos) { %>
+                                <% servicos.forEach(servico => { %>
+                                <option class="d-flex justify-content-between" value="<%= servico.id %>">
+                                    <%= servico.descricao %>
+                                    <span>R$ <%=servico.preco%></span>
+                                </option>
+                                <% }); %>
+                            <% } %>
+                                
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-dark w-100">Inserir Serviço</button>
+                        </div>
+                    </form> 
+        
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-6">
+
+            <div class="card">
+                <div class="card-body">
+        
+                    <form action="/inserirServico" method="POST" autocomplete="off">
+                        <div class="form-group mb-4">
+                            <select class="form-select" name="servico" id="select_servico">
+                                <option selected>Selecione o Serviço</option>
+        
+                            <% if (locals.servicos) { %>
+                                <% servicos.forEach(servico => { %>
+                                <option class="d-flex justify-content-between" value="<%= servico.id %>">
+                                    <%= servico.descricao %>
+                                    <span>R$ <%=servico.preco%></span>
+                                </option>
+                                <% }); %>
+                            <% } %>
+                                
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-dark w-100">Inserir Serviço</button>
+                        </div>
+                    </form> 
+        
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
     
 <%- include('partials/footer') %>
