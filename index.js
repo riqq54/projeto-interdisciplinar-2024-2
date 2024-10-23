@@ -42,7 +42,7 @@ const db = new pg.Client({
 
 db.connect();
 
-//Funções de consulta
+//Funções CRUD banco de dados
 async function getServicos() {
     const result = await db.query("SELECT * FROM servicos");
     return result.rows;
@@ -51,6 +51,11 @@ async function getServicos() {
 async function getUsuarios(){
     const result = await db.query("SELECT * FROM usuarios");
     return result.rows;
+}
+
+async function adicionaAtendimento(){
+    await db.query("INSERT INTO atendimentos (usuario.id, valor_adicional, valor_total, data) VALUES ($1, $2, $3, $4)",
+        [descricao, preco]);
 }
 
 //
@@ -180,6 +185,11 @@ app.post("/removerUsuario/:id", async (req, res) =>{
         console.log(err);
         res.redirect("/acessos")
     }
+})
+
+app.post("/novoAtendimento", async(req,res) =>{
+    console.log(req.body);
+    res.redirect("/");
 })
 
 passport.use(new Strategy(async function verify(username, password, cb){
