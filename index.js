@@ -58,6 +58,11 @@ async function getPerfis() {
     return result.rows;
 }
 
+async function getMetodosPagamento() {
+    const result = await db.query("SELECT * FROM metodos_pagamento");
+    return result.rows;     
+}
+
 async function adicionaAtendimento(){
     await db.query("INSERT INTO atendimentos (usuario.id, valor_adicional, valor_total, data) VALUES ($1, $2, $3, $4)",
         [descricao, preco]);
@@ -72,8 +77,10 @@ app.get("/", async (req, res) => {
     if(req.isAuthenticated()){
 
         const servicos = await getServicos();
+        const metodosPagamento = await getMetodosPagamento();
+        console.log(req.user);
 
-        res.render("home.ejs", {user: req.user, servicos});
+        res.render("home.ejs", {user: req.user, servicos, metodosPagamento});
     } else {
         res.redirect("/login")
     }

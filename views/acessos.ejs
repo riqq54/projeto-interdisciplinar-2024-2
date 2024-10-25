@@ -56,7 +56,7 @@
 
         </div>
 
-        <select class="form-select mb-5" name="perfil" id="perfil" required>
+        <select class="form-select mb-4" name="perfil" id="perfil" required>
           <option value="">Selecione o perfil do Usuário</option>
           <%perfis.forEach(perfil => {%>
             <option value="<%=perfil.id%>"> <%=perfil.nome%></option>
@@ -71,10 +71,6 @@
       </div>
     </div>
   </div>
-
-  <% if (locals.mensagem) { %>
-    <p><%=mensagem%></p>
-  <% } %>
   
     <% if(usuarios.length > 0) {%>
   
@@ -84,8 +80,9 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>login</th>
+              <th>Login</th>
               <th>Permissão</th>
+              <th>E-mail</th>
               <th class="d-flex justify-content-center">Situação</th>
             </tr>
           </thead>
@@ -96,6 +93,7 @@
                 <td><%=usuario.id%></td>
                 <td><%=usuario.login%></td>
                 <td><%=usuario.perfil_nome%></td>
+                <td><%=usuario.email%></td>
                 <td class="d-flex justify-content-center">
                   <form action="/alterarSituacao/<%= usuario.id %>" method="POST">
                     <div class="form-group">
