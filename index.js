@@ -35,7 +35,7 @@ app.use(passport.session());
 const db = new pg.Client({
     user: "postgres",
     host: "localhost",
-    database: "pi",
+    database: "projeto_tabelas",
     password: "Roque@28",
     port: 5432,
 });
@@ -49,7 +49,12 @@ async function getServicos() {
 }
 
 async function getUsuarios(){
-    const result = await db.query("SELECT * FROM usuarios");
+    const result = await db.query("SELECT usuarios.*, perfis.nome AS perfil_nome FROM usuarios JOIN perfis ON usuarios.perfil = perfis.id ORDER BY usuarios.id ASC");
+    return result.rows;
+}
+
+async function getPerfis() {
+    const result = await db.query("SELECT * FROM perfis");
     return result.rows;
 }
 
@@ -91,8 +96,9 @@ app.get("/acessos", async (req,res)=>{
     if(req.isAuthenticated()){
 
         const usuarios = await getUsuarios();
+        const perfis = await getPerfis();        
 
-        res.render("acessos.ejs", {user: req.user, usuarios});
+        res.render("acessos.ejs", {user: req.user, usuarios, perfis});
     } else {
         res.redirect("/login")
     }
@@ -140,14 +146,16 @@ app.post("/novoUsuario", async (req, res) =>{
     const novoLogin = req.body.novoLogin;
     const novaSenha = req.body.novaSenha;
 
+    console.log(req.body);
+
     try {
 
-        const checkResult = await db.query("SELECT * FROM usuarios WHERE username = $1", [novoLogin]);
-        console.log(checkResult);
+        const checkResult = await db.query("SELECT * FROM usuarios WHERE login = $1", [novoLogin]);
+        // console.log(checkResult);
         
-
         if (checkResult.rowCount > 0) {
 
+            console.log("Login já existe."); //Handle com req.flash
             res.redirect("/acessos");
 
         } else {
@@ -157,8 +165,8 @@ app.post("/novoUsuario", async (req, res) =>{
                 } else {
                     // console.log("Senha após Hash:", hash);
                     await db.query(
-                        "INSERT INTO usuarios (username, password) VALUES ($1, $2)",
-                        [novoLogin, hash]
+                        "INSERT INTO usuarios (nome, sobrenome, cpf, celular, email, login, senha, perfil, dataNasc, ativo) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+                        [req.body.nome, req.body.sobrenome, req.body.cpf, req.body.celular, req.body.email, novoLogin, hash, req.body.perfil, req.body.dataNasc, "true"]
                     );
                     res.redirect("/acessos");
                     // res.send("Usuário criado com sucesso!");
@@ -167,18 +175,25 @@ app.post("/novoUsuario", async (req, res) =>{
         }
         
     } catch (error) {
-        
+        console.log(error);
     }
 
 })
 
-app.post("/removerUsuario/:id", async (req, res) =>{
+app.post("/alterarSituacao/:id", async (req, res) =>{
 
     // console.log(req.params.id)
     const idUsuario = req.params.id;
+    let situacao = req.body.ativo;
 
+    if (situacao == 'false') {
+        situacao = false;
+    } else {
+        situacao = true;
+    }
+    
     try {
-        await db.query("DELETE FROM usuarios WHERE id = $1", [idUsuario])
+        await db.query("UPDATE usuarios SET ativo = $1 WHERE id = $2", [!situacao, idUsuario])
         res.redirect("/acessos")
         
     } catch (err) {
@@ -195,12 +210,17 @@ app.post("/novoAtendimento", async(req,res) =>{
 passport.use(new Strategy(async function verify(username, password, cb){
 
     try {
-        const result = await db.query("SELECT * FROM usuarios WHERE username = $1", [username]);
+        const result = await db.query("SELECT * FROM usuarios WHERE login = $1", [username]);
         // console.log(result);
         
         if (result.rowCount > 0) {
             const user = result.rows[0];
-            const senhaHashArmazenada = user.password;
+            const senhaHashArmazenada = user.senha;
+
+            if (user.ativo == false) {
+                return cb(null, false)
+                //res.send("Usuário Desativado.")
+            }
 
             bcrypt.compare(password, senhaHashArmazenada, (err, result) =>{
                 if(err){

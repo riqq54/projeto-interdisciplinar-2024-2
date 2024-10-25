@@ -1,19 +1,68 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar', {user, active: "acessos"}) %>
 
-<div class="container col-md-5 my-5">
+<div class="container col-md-6 my-5">
     <div class="card">
       <div class="card-body">
   
         <form action="/novoUsuario" method="POST" autocomplete="off">
+
+        <div class="form-group mb-3 row">
+
+          <div class="col-5">
+            <label class="form-label" for="nome">Nome</label>
+            <input type="text" class="form-control" id="nome" name="nome" maxlength="45" required>
+          </div>
+
+          <div class="col-7">
+            <label class="form-label" for="sobrenome">Sobrenomes</label>
+            <input type="text" class="form-control" id="sobrenome" name="sobrenome" maxlength="45" required>
+          </div>
+
+        </div>
+
         <div class="form-group mb-3">
-          <label class="form-label" for="novoLogin">Login</label>
-          <input type="text" class="form-control" id="novoLogin" name="novoLogin" placeholder="Ex: nome.sobrenome" maxlength="45" required>
+          <label class="form-label" for="email">E-mail</label>
+          <input type="email" class="form-control email" id="email" name="email" required>
         </div>
-        <div class="form-group mb-4">
-          <label class="form-label" for="novaSenha">Senha</label>
-          <input type="password" class="form-control" id="novaSenha" name="novaSenha" required>
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="celular">Celular</label>
+          <input type="text" class="form-control celular" id="celular" name="celular">
         </div>
+
+        <div class="form-group mb-3 row">
+          <div class="col-4">
+            <label class="form-label" for="cpf">CPF</label>
+            <input type="text" class="form-control cpf" id="cpf" name="cpf" required>
+          </div>
+          <div class="col-8">
+            <label class="form-label" for="dataNasc">Data de Nascimento</label>
+            <input type="date" class="form-control" id="dataNasc" name="dataNasc" max="9999-12-31" required>
+          </div>
+        </div>
+
+        <div class="form-group mb-4 row">
+
+          <div class="col">
+            <label class="form-label" for="novoLogin">Login</label>
+            <input type="text" class="form-control" id="novoLogin" name="novoLogin" placeholder="Ex: nome.sobrenome" maxlength="45" required>  
+          </div>
+
+          <div class="col">
+            <label class="form-label" for="novaSenha">Senha</label>
+            <input type="password" class="form-control" id="novaSenha" name="novaSenha" required>
+          </div>
+
+        </div>
+
+        <select class="form-select mb-5" name="perfil" id="perfil" required>
+          <option value="">Selecione o perfil do Usuário</option>
+          <%perfis.forEach(perfil => {%>
+            <option value="<%=perfil.id%>"> <%=perfil.nome%></option>
+          <%});%>
+        </select>
+
         <div class="form-group">
           <button type="submit" class="btn btn-dark w-100">Cadastrar Usuário</button>
         </div>
@@ -29,7 +78,7 @@
   
     <% if(usuarios.length > 0) {%>
   
-      <div class="container col-md-6">
+      <div class="container col-md-7">
   
         <table class="table table-bordered rounded">
           <thead>
@@ -37,6 +86,7 @@
               <th>ID</th>
               <th>login</th>
               <th>Permissão</th>
+              <th class="d-flex justify-content-center">Situação</th>
             </tr>
           </thead>
           <tbody>
@@ -44,12 +94,17 @@
             <%usuarios.forEach(usuario => {%>
               <tr class="align-middle">
                 <td><%=usuario.id%></td>
-                <td><%=usuario.username%></td>
-                <td class="d-flex justify-content-between"> <span class="align-self-center"></span> 
-                
-                  <form action="/removerUsuario/<%= usuario.id %>" method="POST">
+                <td><%=usuario.login%></td>
+                <td><%=usuario.perfil_nome%></td>
+                <td class="d-flex justify-content-center">
+                  <form action="/alterarSituacao/<%= usuario.id %>" method="POST">
                     <div class="form-group">
-                      <button type="submit" class="btn btn-outline-danger"><i class="fa-solid fa-trash-can"></i></button>
+                      <input type="hidden" value="<%= usuario.ativo %>" name="ativo"> 
+                      <% if (usuario.ativo) { %>
+                        <button type="submit" class="btn" style="color: green"><i class="fa-solid fa-user mx-2"></i></button>                     
+                      <% } else {%>
+                        <button type="submit" class="btn" style="color: red"><i class="fa-solid fa-user mx-2"></i></button>                     
+                      <% } %>
                     </div>
                   </form>
                 </td>
