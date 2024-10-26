@@ -32,7 +32,8 @@
           <input type="text" class="form-control dinheiro" id="preco" name="valorAdicional" placeholder="Ex: R$ 25,00 ">
         </div>
 
-        <select class="form-select mb-4" name="metodosPagamento" id="metodosPagamento" required>
+        <label class="form-label" for="metodoPagamento">Método de Pagamento</label>
+        <select class="form-select mb-4" name="metodoPagamento" id="metodoPagamento" required>
           <option value="">Selecione o método de pagamento</option>
           <%metodosPagamento.forEach(metodo => {%>
             <option value="<%=metodo.id%>"> <%=metodo.descricao%></option>
@@ -40,6 +41,7 @@
         </select>
 
         <div class="form-group">
+          <input type="hidden" name="userID" value="<%=user.id%>">
           <button type="submit" class="btn btn-dark w-100">Registrar Atendimento</button>
         </div>
         </form> 

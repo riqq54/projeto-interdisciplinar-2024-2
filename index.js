@@ -44,7 +44,7 @@ db.connect();
 
 //Funções CRUD banco de dados
 async function getServicos() {
-    const result = await db.query("SELECT * FROM servicos");
+    const result = await db.query("SELECT * FROM servicos ORDER BY id ASC");
     return result.rows;
 }
 
@@ -63,11 +63,6 @@ async function getMetodosPagamento() {
     return result.rows;     
 }
 
-async function adicionaAtendimento(){
-    await db.query("INSERT INTO atendimentos (usuario.id, valor_adicional, valor_total, data) VALUES ($1, $2, $3, $4)",
-        [descricao, preco]);
-}
-
 //
 // ENDPOINTS
 //
@@ -78,7 +73,7 @@ app.get("/", async (req, res) => {
 
         const servicos = await getServicos();
         const metodosPagamento = await getMetodosPagamento();
-        console.log(req.user);
+        // console.log(req.user);
 
         res.render("home.ejs", {user: req.user, servicos, metodosPagamento});
     } else {
@@ -209,8 +204,56 @@ app.post("/alterarSituacao/:id", async (req, res) =>{
     }
 })
 
-app.post("/novoAtendimento", async(req,res) =>{
+app.post("/novoAtendimento", async (req,res) =>{
+
     console.log(req.body);
+
+    let valorTotal = 0;
+
+    const servicosPrestados = Array.from(req.body.servicosPrestados);
+
+    const servicos = await getServicos();
+
+    servicosPrestados.forEach(servicoPrestado => {
+        const servicoIndex = servicos.findIndex((servico) => servico.id == servicoPrestado)
+        valorTotal += parseFloat(servicos[servicoIndex].preco);
+    });
+
+    let valorAdicional = req.body.valorAdicional.replace(",",".");
+    
+    if(!valorAdicional){
+        valorAdicional = 0;
+    }
+
+    console.log(valorTotal);    
+    
+    try {
+
+        const result = await db.query("INSERT INTO atendimentos (usuario, valor_adicional, valor_total, data, metodo_pagamento) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+            [req.body.userID, valorAdicional, valorTotal, new Date, req.body.metodoPagamento]);
+            
+            const atendimentoID = result.rows[0].id;
+            console.log(atendimentoID);
+            
+            try {
+
+                for (const s of servicosPrestados) {
+                    
+                    await db.query("INSERT INTO atendimentos_servicos (atendimento, servico) VALUES ($1, $2)",
+                                [atendimentoID, s]);
+                }
+                
+            } catch (error) {
+                console.log(error);
+                res.redirect("/")
+            }
+
+    } catch (err) {
+
+        console.log(err);
+        res.redirect("/")
+    }
+
     res.redirect("/");
 })
 
