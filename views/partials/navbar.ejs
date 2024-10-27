@@ -8,12 +8,17 @@
           <li class="nav-item">
             <a class="nav-link <%if(active == "home"){%> active <%}%>" aria-current="page" href="/"><i class="fa-solid fa-money-bill mx-2"></i>Atendimentos</a>
           </li>
+
+          <% if(user.perfil == 1) {%>
+
           <li class="nav-item">
             <a class="nav-link <%if(active == "servicos"){%> active <%}%>" href="/servicos"><i class="fa-solid fa-scissors mx-2"></i>Serviços</a>
           </li>
           <li class="nav-item">
             <a class="nav-link <%if(active == "acessos"){%> active <%}%>" href="/acessos"><i class="fa-solid fa-user mx-2"></i>Acessos</a>
           </li>
+
+          <%}%>
         </ul>
             <p class="navbar-nav me-5" style="color: white;">Bem vindo, <%=user.nome%>!</p>
       </div>
