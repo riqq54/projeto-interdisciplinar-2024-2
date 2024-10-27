@@ -14,10 +14,13 @@
           <% if(user.perfil == 1) {%>
 
           <li class="nav-item">
-            <a class="nav-link <%if(active == "servicos"){%> active <%}%>" href="/servicos"><i class="fa-solid fa-scissors mx-2"></i>Serviços</a>
+            <a class="nav-link <%if(active == "relatorios"){%> active <%}%>" href="/relatorios"><i class="fa-solid fa-chart-simple mx-1"></i>Relatórios</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link <%if(active == "acessos"){%> active <%}%>" href="/acessos"><i class="fa-solid fa-user mx-2"></i>Acessos</a>
+            <a class="nav-link <%if(active == "servicos"){%> active <%}%>" href="/servicos"><i class="fa-solid fa-scissors mx-1"></i>Serviços</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%if(active == "acessos"){%> active <%}%>" href="/acessos"><i class="fa-solid fa-user mx-1"></i>Acessos</a>
           </li>
 
           <%}%>

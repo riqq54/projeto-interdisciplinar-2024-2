@@ -11,11 +11,11 @@ const app = express();
 const port = 3000;
 const saltRounds = 2;
 
-//Middlewares
-app.use(bodyParser.urlencoded({ extended: true })); //Utilizar Body-Parser para acessar o corpo da requisição através de req.
-app.use(express.static("public")); //Define para o express em qual diretório estão os arquivos estáticos da aplicação
+//Middlewares - BodyParser (req.body) e localização dos arquivos estáticos
+app.use(bodyParser.urlencoded({ extended: true })); 
+app.use(express.static("public"));
 
-//Configuração do middleware Express-Session para permanência de sessão (30 minutos)
+//Middleware - Express-Session para permanência de sessão (30 minutos)
 app.use(
     session({
         secret: "TOPSECRETWORD",
@@ -27,7 +27,7 @@ app.use(
       })
     );
 
-//Inicializa o middleware do passport e a sessão declarada previamente
+//Middleware - Passport e a sessão declarada previamente
 app.use(passport.initialize());
 app.use(passport.session());    
 
@@ -42,7 +42,12 @@ const db = new pg.Client({
 
 db.connect();
 
-//Funções CRUD banco de dados
+
+
+
+//
+//Funções de consulta ao banco de dados
+//
 async function getServicos() {
     const result = await db.query("SELECT * FROM servicos ORDER BY id ASC");
     return result.rows;
@@ -71,10 +76,22 @@ async function getMeusAtendimentos(user_id){
     return result.rows;
 }
 
+async function getTodosAtendimentos(){
+    const result = await db.query(
+        "SELECT atendimentos.id, usuarios.nome, usuarios.sobrenome, TO_CHAR(atendimentos.data, 'dd/mm/yyyy') AS data, atendimentos.valor_adicional, atendimentos.valor_total, metodos_pagamento.descricao AS metodo_pagamento FROM atendimentos JOIN usuarios ON usuarios.id = atendimentos.usuario JOIN metodos_pagamento ON metodos_pagamento.id = atendimentos.metodo_pagamento");
+    return result.rows;
+}
+
+
+
+
 //
 // ENDPOINTS
 //
 
+//
+//HTTP - GET
+//
 app.get("/", async (req, res) => {
 
     if(req.isAuthenticated()){
@@ -102,6 +119,23 @@ app.get("/atendimentos", async (req, res) => {
     } else {
         res.redirect("/login")
     }
+
+});
+
+app.get("/relatorios", async (req, res) => {
+
+    if(!req.isAuthenticated){
+        res.redirect("/login")
+    }
+
+    if(req.user.perfil != 1){
+        res.redirect("/")
+    }
+
+    const todosAtendimentos = await getTodosAtendimentos();
+    console.log(todosAtendimentos);
+
+    res.render("relatorios.ejs", {user: req.user, todosAtendimentos});
 
 });
 
@@ -133,11 +167,20 @@ app.get("/login", (req, res) => {
     res.render("login.ejs");
 });
 
+
+
+
+//
+//HTTP - POST
+//
+
+//Login (Autenticação)
 app.post("/login", passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/login"
 }));
 
+//Serviços
 app.post("/novoServico", async (req, res) =>{
 
     const descricao = req.body.descricao;
@@ -167,6 +210,8 @@ app.post("/removerServico/:id", async (req, res) =>{
     }
 })
 
+
+//Usuários
 app.post("/novoUsuario", async (req, res) =>{
     const novoLogin = req.body.novoLogin;
     const novaSenha = req.body.novaSenha;
@@ -227,6 +272,8 @@ app.post("/alterarSituacao/:id", async (req, res) =>{
     }
 })
 
+
+//Atendimentos
 app.post("/novoAtendimento", async (req,res) =>{
 
     console.log(req.body);
@@ -280,6 +327,11 @@ app.post("/novoAtendimento", async (req,res) =>{
     res.redirect("/");
 })
 
+
+
+//
+//Passport - Estratégia de Autenticação
+//
 passport.use(new Strategy(async function verify(username, password, cb){
 
     try {
@@ -326,6 +378,7 @@ passport.deserializeUser((user, cb) =>{
     cb(null, user);
 })
 
+//Inicia o servidor
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
