@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar', {user, active: "atendimentos"}) %>
+
+
+<% if(meusAtendimentos.length > 0) {%>
+
+<div class="container col-md-6 my-5">
+
+    <table class="table table-bordered tabelas">
+    <thead>
+        <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Método de Pagamento</th>
+        <th>Valor Adicional</th>
+        <th>Valor Total</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <%meusAtendimentos.forEach(atendimento => {%>
+        <tr class="align-middle">
+            <td><%=atendimento.id%></td>
+            <td><%=atendimento.data%></td>
+            <td><%=atendimento.metodo_pagamento%></td>
+            <td> R$ <%=atendimento.valor_adicional%></td>
+            <td> R$ <%=atendimento.valor_total%></td>
+        </tr>
+        <%});%>
+
+    </tbody>   
+    </table>
+
+</div>
+
+  <%}%>
+
+
+<%- include('partials/footer') %>

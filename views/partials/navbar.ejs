@@ -8,7 +8,9 @@
           <li class="nav-item">
             <a class="nav-link <%if(active == "home"){%> active <%}%>" aria-current="page" href="/"><i class="fa-solid fa-money-bill mx-2"></i>Atendimentos</a>
           </li>
-
+          <li class="nav-item">
+            <a class="nav-link <%if(active == "atendimentos"){%> active <%}%>" aria-current="page" href="/atendimentos"><i class="fa-solid fa-chart-line mx-1"></i> Meus Atendimentos</a>
+          </li>
           <% if(user.perfil == 1) {%>
 
           <li class="nav-item">

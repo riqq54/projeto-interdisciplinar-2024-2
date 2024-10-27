@@ -63,6 +63,14 @@ async function getMetodosPagamento() {
     return result.rows;     
 }
 
+async function getMeusAtendimentos(user_id){
+    const result = await db.query(
+        "SELECT atendimentos.id, usuarios.login, TO_CHAR(atendimentos.data, 'dd/mm/yyyy') AS data, atendimentos.valor_adicional, atendimentos.valor_total, metodos_pagamento.descricao AS metodo_pagamento FROM atendimentos JOIN usuarios ON usuarios.id = atendimentos.usuario JOIN metodos_pagamento ON metodos_pagamento.id = atendimentos.metodo_pagamento WHERE usuarios.id = $1",
+        [user_id]);
+
+    return result.rows;
+}
+
 //
 // ENDPOINTS
 //
@@ -76,6 +84,21 @@ app.get("/", async (req, res) => {
         // console.log(req.user);
 
         res.render("home.ejs", {user: req.user, servicos, metodosPagamento});
+    } else {
+        res.redirect("/login")
+    }
+
+});
+
+app.get("/atendimentos", async (req, res) => {
+
+    if(req.isAuthenticated()){
+
+        const user_id = req.user.id;
+
+        const meusAtendimentos = await getMeusAtendimentos(user_id); 
+
+        res.render("atendimentos.ejs", {user: req.user, meusAtendimentos});
     } else {
         res.redirect("/login")
     }
