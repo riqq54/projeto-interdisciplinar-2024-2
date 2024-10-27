@@ -6,10 +6,12 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
+import env from "dotenv";
 
 const app = express();
 const port = 3000;
 const saltRounds = 2;
+env.config();
 
 //Middlewares - BodyParser (req.body) e localização dos arquivos estáticos
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -18,7 +20,7 @@ app.use(express.static("public"));
 //Middleware - Express-Session para permanência de sessão (30 minutos)
 app.use(
     session({
-        secret: "TOPSECRETWORD",
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
         cookie: {
@@ -33,11 +35,11 @@ app.use(passport.session());
 
 //Iniciar client para acessar o banco de dados
 const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "projeto_tabelas",
-    password: "Roque@28",
-    port: 5432,
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DATABASE,
+    password: process.env.PG_PASSWORD,
+    port: process.env.PG_PORT,
 });
 
 db.connect();
@@ -133,7 +135,7 @@ app.get("/relatorios", async (req, res) => {
     }
 
     const todosAtendimentos = await getTodosAtendimentos();
-    console.log(todosAtendimentos);
+    // console.log(todosAtendimentos);
 
     res.render("relatorios.ejs", {user: req.user, todosAtendimentos});
 
@@ -216,7 +218,7 @@ app.post("/novoUsuario", async (req, res) =>{
     const novoLogin = req.body.novoLogin;
     const novaSenha = req.body.novaSenha;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
 
@@ -295,7 +297,7 @@ app.post("/novoAtendimento", async (req,res) =>{
         valorAdicional = 0;
     }
 
-    console.log(valorTotal);    
+    // console.log(valorTotal);
     
     try {
 
@@ -303,7 +305,7 @@ app.post("/novoAtendimento", async (req,res) =>{
             [req.body.userID, valorAdicional, valorTotal, new Date, req.body.metodoPagamento]);
             
             const atendimentoID = result.rows[0].id;
-            console.log(atendimentoID);
+            // console.log(atendimentoID);
             
             try {
 
