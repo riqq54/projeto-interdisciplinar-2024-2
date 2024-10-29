@@ -25,6 +25,16 @@
 
           <%}%>
         </ul>
-            <p class="navbar-nav me-5" style="color: white;">Bem vindo, <%=user.nome%>!</p>
+        <ul class="navbar-nav ms-5">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle me-5" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Bem vindo, <%=user.nome%>!
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item d-flex justify-content-between" href="/logout">Sair <i class="fa-solid fa-right-from-bracket align-self-center"></i></a></li>
+            </ul>
+          </li>
+        </ul>
+
       </div>
 </nav>

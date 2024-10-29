@@ -169,8 +169,14 @@ app.get("/login", (req, res) => {
     res.render("login.ejs");
 });
 
-
-
+app.get("/logout", (req, res) => {
+    req.logout(function (err) {
+      if (err) {
+        return next(err);
+      }
+      res.redirect("/");
+    });
+});
 
 //
 //HTTP - POST
