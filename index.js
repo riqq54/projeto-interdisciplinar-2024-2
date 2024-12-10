@@ -43,7 +43,7 @@ app.use((req, res, next)=>{
 //Iniciar client para acessar o banco de dados
 let configdb = null;
 
-if (process.env.ENVIRONMENT == "production")
+if (process.env.NODE_ENV === "production")
     configdb = {connectionString: process.env.DATABASE_URL}
 else
     configdb = {
