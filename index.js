@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
 import { Strategy } from "passport-local";
-import env from "dotenv";
+import env, { config } from "dotenv";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -41,13 +41,20 @@ app.use((req, res, next)=>{
 })
 
 //Iniciar client para acessar o banco de dados
-const db = new pg.Client({
-    user: process.env.PG_USER,
-    host: process.env.PG_HOST,
-    database: process.env.PG_DATABASE,
-    password: process.env.PG_PASSWORD,
-    port: process.env.PG_PORT,
-});
+let configdb = null;
+
+if (process.env.ENVIRONMENT == "production")
+    configdb = {connectionString: process.env.DATABASE_URL}
+else
+    configdb = {
+        user: process.env.PG_USER,
+        host: process.env.PG_HOST,
+        database: process.env.PG_DATABASE,
+        password: process.env.PG_PASSWORD,
+        port: process.env.PG_PORT,
+    }
+
+const db = new pg.Client(configdb);
 
 db.connect();
 
