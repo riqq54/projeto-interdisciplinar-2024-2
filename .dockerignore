@@ -1,0 +1,8 @@
+#Node
+node_modules/
+
+#dotenv environment variables
+.env
+
+#SQL
+tabelas.sql
