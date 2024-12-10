@@ -9,7 +9,7 @@ import { Strategy } from "passport-local";
 import env from "dotenv";
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const saltRounds = 2;
 env.config();
 
@@ -31,7 +31,14 @@ app.use(
 
 //Middleware - Passport e a sessão declarada previamente
 app.use(passport.initialize());
-app.use(passport.session());    
+app.use(passport.session());
+
+//Middlware - Mensagens Flash
+app.use((req, res, next)=>{
+    res.locals.message = req.session.message
+    delete req.session.message
+    next()
+})
 
 //Iniciar client para acessar o banco de dados
 const db = new pg.Client({
@@ -185,7 +192,8 @@ app.get("/logout", (req, res) => {
 //Login (Autenticação)
 app.post("/login", passport.authenticate("local", {
     successRedirect: "/",
-    failureRedirect: "/login"
+    failureRedirect: "/login",
+    failureMessage: true
 }));
 
 //Serviços
@@ -363,7 +371,7 @@ passport.use(new Strategy(async function verify(username, password, cb){
                     if(result){
                         return cb(null, user)
                     } else{
-                        return cb(null, false)
+                        return cb(null, false, {message: 'Por favor tente novamente'})
                         //res.send("Senha Incorreta"); //Handle dps
                     }
                 }
